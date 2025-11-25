@@ -1,0 +1,26 @@
+---
+lockfileVersion: 1
+lockfileVendor: redhat
+arches:
+- arch: aarch64
+  packages:
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/aarch64/baseos/os/Packages/b/bash-5.2.26-6.el10.aarch64.rpm
+    repoid: ubi-10-baseos-rpms
+    size: 1885336
+    checksum: sha256:be03a4bc064a262d2165b5f53a9c86cf578a4d3c0b5a6c8e804c5b3496ce82a6
+    name: bash
+    evr: 5.2.26-6.el10
+    sourcerpm: bash-5.2.26-6.el10.src.rpm
+  source: []
+  module_metadata: []
+- arch: x86_64
+  packages:
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi10/10/x86_64/baseos/os/Packages/b/bash-5.2.26-6.el10.x86_64.rpm
+    repoid: ubi-10-baseos-rpms
+    size: 1902027
+    checksum: sha256:4cf4d161e7b25f123cf9653293a02696373431c5ccfd0f94f05b23600595c00a
+    name: bash
+    evr: 5.2.26-6.el10
+    sourcerpm: bash-5.2.26-6.el10.src.rpm
+  source: []
+  module_metadata: []

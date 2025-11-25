@@ -1,0 +1,20 @@
+# https://github.com/konflux-ci/rpm-lockfile-prototype
+
+contentOrigin:
+  repofiles:
+    - ./ubi.repo
+
+# We want to have control over versions, so we reinstall packages
+# even if they're already included in the base image.
+reinstallPackages:
+  - bash
+
+arches:
+  - aarch64
+  - x86_64
+
+context:
+  containerfile: ../../Containerfile
+
+# Lower the chance of installing something we didn't mean to install
+installWeakDeps: false
