@@ -7,9 +7,17 @@
 | curl                           | 8.12.1-2.el10                  | RPM                            |
 | findutils                      | 4.10.0-5.el10                  | RPM                            |
 | gawk                           | 5.3.0-6.el10                   | RPM                            |
+| gettext-envsubst               | 0.22.5-6.el10                  | RPM                            |
+| git-core                       | 2.47.3-1.el10_0                | RPM                            |
 | grep                           | 3.11-10.el10                   | RPM                            |
+| jq                             | 1.7.1-11.el10                  | RPM                            |
+| make                           | 4.4.1-9.el10                   | RPM                            |
 | microdnf                       | 3.10.1-1.el10                  | RPM                            |
+| openssl                        | 3.5.1-4.el10_1                 | RPM                            |
 | rpm                            | 4.19.1.1-20.el10               | RPM                            |
 | sed                            | 4.9-3.el10                     | RPM                            |
+| skopeo                         | 1.20.0-1.el10                  | RPM                            |
 | syft                           | 1.38.0                         | `go install`                   |
+| tar                            | 1.35-7.el10                    | RPM                            |
 | yq                             | 4.49.2                         | `go install`                   |
+| zip                            | 3.0-45.el10                    | RPM                            |

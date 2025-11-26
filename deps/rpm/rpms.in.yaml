@@ -4,6 +4,16 @@ contentOrigin:
   repofiles:
     - ./ubi.repo
 
+packages:
+  - gettext-envsubst
+  - git-core
+  - jq
+  - make
+  - openssl
+  - skopeo
+  - tar
+  - zip
+
 # We want to have control over versions, so we reinstall packages
 # even if they're already included in the base image.
 reinstallPackages:
