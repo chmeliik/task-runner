@@ -1,5 +1,5 @@
 #!/bin/bash
-set -o errexit -o nounset -o pipefail
+set -o errexit -o nounset -o pipefail -o xtrace
 
 # These seem to be commonly used when compiling Go tools, e.g.:
 #   https://github.com/anchore/syft/blob/5b96d1d69d76098778be0f8556d1a63d1050239f/.goreleaser.yaml#L20-L21

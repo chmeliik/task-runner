@@ -1,5 +1,5 @@
 #!/bin/bash
-set -o errexit -o nounset -o pipefail
+set -o errexit -o nounset -o pipefail -o xtrace
 
 # Install or re-install the exact versions of RPMs specified in the lockfile.
 
@@ -7,7 +7,7 @@ list_packages_with_evrs() {
     local attribute=$1
 
     local packages
-    packages=$(yq ".$attribute" rpms.in.yaml)
+    packages=$(yq ".$attribute" rpms.in.yaml -o json --indent 0)
 
     if [[ "$packages" == null ]]; then
         return
