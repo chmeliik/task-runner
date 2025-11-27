@@ -3,11 +3,7 @@ FROM registry.access.redhat.com/ubi10/go-toolset:1.25@sha256:182645783ad0a0af4a7
 USER 0
 
 WORKDIR /deps/golang/src
-
-COPY deps/golang/go.mod deps/golang/go.sum .
-RUN go mod download
-
-COPY deps/golang/install-tools.sh .
+COPY deps/golang/ .
 RUN GOBIN=/deps/golang/bin ./install-tools.sh
 
 

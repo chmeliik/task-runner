@@ -5,7 +5,7 @@ import re
 import subprocess
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Literal, NotRequired, TypedDict
+from typing import Any, Iterable, Literal, NotRequired, TypedDict
 
 import yaml
 
@@ -21,7 +21,7 @@ class Package:
 
 
 def list_packages(project_root: Path) -> list[Package]:
-    return list_go_packages(project_root) + list_rpms(project_root)
+    return list_go_tools(project_root) + list_rpms(project_root)
 
 
 class _GoMod(TypedDict):
@@ -38,12 +38,20 @@ class _GoModModule(TypedDict):
     Version: str
 
 
-def list_go_packages(project_root: Path) -> list[Package]:
+def list_go_tools(project_root: Path) -> list[Package]:
+    packages: list[Package] = []
+    for path in sorted(project_root.joinpath("deps/golang").iterdir()):
+        if path.is_dir():
+            packages.extend(_list_go_tools(path))
+    return packages
+
+
+def _list_go_tools(tool_dir: Path) -> Iterable[Package]:
     proc = subprocess.run(
         ["go", "mod", "edit", "-json"],
         stdout=subprocess.PIPE,
         check=True,
-        cwd=project_root / "deps" / "golang",
+        cwd=tool_dir,
     )
     go_mod: _GoMod = json.loads(proc.stdout)
 
@@ -53,8 +61,6 @@ def list_go_packages(project_root: Path) -> list[Package]:
             if package_path == module_path or package_path.startswith(f"{module_path}/"):
                 return module
         return None
-
-    packages: list[Package] = []
 
     for tool in go_mod["Tool"]:
         package_path = tool["Path"]
@@ -68,15 +74,11 @@ def list_go_packages(project_root: Path) -> list[Package]:
         else:
             name = parts[-1]
 
-        packages.append(
-            Package(
-                name=name,
-                version=module["Version"].removeprefix("v"),
-                installed_with="go",
-            )
+        yield Package(
+            name=name,
+            version=module["Version"].removeprefix("v"),
+            installed_with="go",
         )
-
-    return packages
 
 
 class _RpmsIn(TypedDict):

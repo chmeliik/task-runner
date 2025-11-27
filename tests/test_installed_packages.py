@@ -46,4 +46,8 @@ def test_package_returns_correct_version(
 
     # drop the release part from RPM versions
     expect_version, _, _ = package.version.partition("-")
-    assert expect_version in proc.stdout
+
+    if proc.stdout:
+        assert expect_version in proc.stdout
+    else:
+        assert expect_version in proc.stderr

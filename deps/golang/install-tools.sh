@@ -7,26 +7,34 @@ set -o errexit -o nounset -o pipefail -o xtrace
 # Their purpose is to reduce the size of the binaries by omitting debug info.
 COMMON_LDFLAGS='-s -w'
 
-get_version() {
-    local module=$1
-    local version
-    version=$(go list -m -f '{{.Version}}' "$module")
-    echo "${version#v}"
+install_tool() {
+    local name=$1
+    local version_attribute=${2:-}
+
+    cd "$name"
+
+    # 'go tool' also lists builtin tools, filter them out by looking for the '.' in domain names
+    go tool | grep -F . | while read -r tool_pkg; do
+        local ldflags=$COMMON_LDFLAGS
+        if [[ -n "$version_attribute" ]]; then
+            version=$(go list -f '{{.Module.Version}}' "$tool_pkg")
+            ldflags+=" -X ${version_attribute}=${version#v}"
+        fi
+
+        go install -ldflags "$ldflags" "$tool_pkg"
+    done
+
+    cd ..
 }
 
-syft_version=$(get_version github.com/anchore/syft)
-go install -ldflags "$COMMON_LDFLAGS -X main.version=$syft_version" github.com/anchore/syft/cmd/syft
+install_tool syft "main.version"
 
-go install -ldflags "$COMMON_LDFLAGS" github.com/mikefarah/yq/v4
+install_tool yq
 
-tkn_version=$(get_version github.com/tektoncd/cli)
-go install -ldflags "$COMMON_LDFLAGS -X github.com/tektoncd/cli/pkg/cmd/version.clientVersion=$tkn_version" github.com/tektoncd/cli/cmd/tkn
+install_tool tkn "github.com/tektoncd/cli/pkg/cmd/version.clientVersion"
 
-cosign_version=$(get_version github.com/sigstore/cosign)
-go install -ldflags "$COMMON_LDFLAGS -X sigs.k8s.io/release-utils/version.gitVersion=$cosign_version" github.com/sigstore/cosign/cmd/cosign
+install_tool cosign "sigs.k8s.io/release-utils/version.gitVersion"
 
-oras_version=$(get_version oras.land/oras)
-go install -ldflags "$COMMON_LDFLAGS -X oras.land/oras/internal/version.BuildMetadata=$oras_version" oras.land/oras/cmd/oras
+install_tool oras "oras.land/oras/internal/version.BuildMetadata"
 
-conftest_version=$(get_version github.com/open-policy-agent/conftest)
-go install -ldflags "$COMMON_LDFLAGS -X github.com/open-policy-agent/conftest/internal/version.Version=$conftest_version" github.com/open-policy-agent/conftest
+install_tool conftest "github.com/open-policy-agent/conftest/internal/version.Version"
