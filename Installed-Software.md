@@ -15,6 +15,7 @@
 | make                           | 4.4.1-9.el10                   | RPM                            |
 | microdnf                       | 3.10.1-1.el10                  | RPM                            |
 | openssl                        | 3.5.1-4.el10_1                 | RPM                            |
+| oras                           | 1.3.0                          | `go install`                   |
 | rpm                            | 4.19.1.1-20.el10               | RPM                            |
 | sed                            | 4.9-3.el10                     | RPM                            |
 | skopeo                         | 1.20.0-1.el10                  | RPM                            |
