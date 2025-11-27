@@ -3,6 +3,7 @@
 | Name                           | Version                        | Install Method                 |
 | ------------------------------ | ------------------------------ | ------------------------------ |
 | bash                           | 5.2.26-6.el10                  | RPM                            |
+| conftest                       | 0.65.0                         | `go install`                   |
 | coreutils-single               | 9.5-6.el10                     | RPM                            |
 | cosign                         | 1.13.6                         | `go install`                   |
 | curl                           | 8.12.1-2.el10                  | RPM                            |

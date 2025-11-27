@@ -27,3 +27,6 @@ go install -ldflags "$COMMON_LDFLAGS -X sigs.k8s.io/release-utils/version.gitVer
 
 oras_version=$(get_version oras.land/oras)
 go install -ldflags "$COMMON_LDFLAGS -X oras.land/oras/internal/version.BuildMetadata=$oras_version" oras.land/oras/cmd/oras
+
+conftest_version=$(get_version github.com/open-policy-agent/conftest)
+go install -ldflags "$COMMON_LDFLAGS -X github.com/open-policy-agent/conftest/internal/version.Version=$conftest_version" github.com/open-policy-agent/conftest
