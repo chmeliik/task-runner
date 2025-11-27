@@ -40,7 +40,7 @@ class _GoModModule(TypedDict):
 
 def list_go_tools(project_root: Path) -> list[Package]:
     packages: list[Package] = []
-    for path in sorted(project_root.joinpath("deps/golang").iterdir()):
+    for path in sorted(project_root.joinpath("deps/go-tools").iterdir()):
         if path.is_dir():
             packages.extend(_list_go_tools(path))
     return packages

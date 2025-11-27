@@ -2,8 +2,8 @@ FROM registry.access.redhat.com/ubi10/go-toolset:1.25@sha256:182645783ad0a0af4a7
 
 USER 0
 
-WORKDIR /deps/golang/src
-COPY deps/golang/ .
+WORKDIR /deps/golang/tools
+COPY deps/go-tools/ .
 RUN GOBIN=/deps/golang/bin ./install-tools.sh
 
 
