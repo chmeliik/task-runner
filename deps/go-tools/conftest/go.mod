@@ -1,4 +1,4 @@
-module github.com/konflux-ci/task-runner/deps/golang/conftest
+module github.com/konflux-ci/task-runner/deps/go-tools/conftest
 
 go 1.25.3
 

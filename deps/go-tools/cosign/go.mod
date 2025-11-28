@@ -1,4 +1,4 @@
-module github.com/konflux-ci/task-runner/deps/golang/cosign
+module github.com/konflux-ci/task-runner/deps/go-tools/cosign
 
 go 1.25.3
 

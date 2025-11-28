@@ -1,4 +1,4 @@
-module github.com/konflux-ci/task-runner/deps/golang/syft
+module github.com/konflux-ci/task-runner/deps/go-tools/syft
 
 go 1.25.3
 

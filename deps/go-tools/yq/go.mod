@@ -1,4 +1,4 @@
-module github.com/konflux-ci/task-runner/deps/golang/yq
+module github.com/konflux-ci/task-runner/deps/go-tools/yq
 
 go 1.25.3
 

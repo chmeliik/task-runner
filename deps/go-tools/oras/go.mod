@@ -1,4 +1,4 @@
-module github.com/konflux-ci/task-runner/deps/golang/oras
+module github.com/konflux-ci/task-runner/deps/go-tools/oras
 
 go 1.25.3
 
