@@ -2,6 +2,10 @@
 set -o errexit -o nounset -o pipefail -o xtrace
 
 OUTPUT_DIR=${GOBIN:-$(go env GOPATH)/bin}
+mkdir -p "$OUTPUT_DIR"
+
+# Prevent kubectl from trying to download a different toolchain
+export GOTOOLCHAIN=local
 
 cd kubernetes
 make kubectl
