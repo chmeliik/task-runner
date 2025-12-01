@@ -1,0 +1,81 @@
+name: Autogenerate files
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  autogenerate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          submodules: true
+
+      - name: Fetch submodule tags
+        run: |
+          git submodule foreach '
+            git ls-remote --tags |
+              grep "$(git rev-parse HEAD)" |
+              sed "s/\^{}$//" |
+              xargs -r git fetch origin
+          '
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Create virtual environment
+        run: |
+          make .venv
+
+      - name: Run generator
+        run: |
+          source .venv/bin/activate
+          devtool gen --all
+
+      - name: Check for changes
+        run: |
+          if ! git diff --quiet; then
+            echo "HAS_CHANGES=true" >> "$GITHUB_ENV"
+          else
+            echo "HAS_CHANGES=false" >> "$GITHUB_ENV"
+          fi
+
+      - name: Check if PR author is Renovate
+        env:
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          if [[ "$PR_AUTHOR" == *renovate* ]]; then
+            echo "IS_RENOVATE=true" >> "$GITHUB_ENV"
+          else
+            echo "IS_RENOVATE=false" >> "$GITHUB_ENV"
+          fi
+
+      - name: Commit and push changes (Renovate only)
+        if: env.HAS_CHANGES == 'true' && env.IS_RENOVATE == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add .
+          git commit -m "Update generated files"
+          git push
+
+      - name: Show changes and fail (non-Renovate)
+        if: env.HAS_CHANGES == 'true' && env.IS_RENOVATE == 'false'
+        run: |
+          echo "::error::Generated files are out of date"
+          echo ""
+          echo "Please run locally:"
+          echo "  make venv"
+          echo "  source .venv/bin/activate"
+          echo "  devtool gen --all"
+          echo ""
+          echo "Changes detected:"
+          git diff
+          exit 1
