@@ -9,6 +9,7 @@
   "schedule": [
     "* * 1,15 * *"
   ],
+  "prHourlyLimit": 0,
   "git-submodules": {
     "enabled": true
   },
