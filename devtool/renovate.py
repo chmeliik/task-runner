@@ -25,25 +25,33 @@ def renovate_json(go_packages: list[GoPackage]) -> dict[str, Any]:
                 "matchManagers": ["gomod"],
                 "matchPackageNames": [p.module_path for p in go_packages],
                 "enabled": True,
-                "groupName": "Go tools",
+                "groupName": "Runner software",
+            },
+            {
+                "matchManagers": ["git-submodules"],
+                "groupName": "Runner software",
+            },
+            {
+                "matchFileNames": ["deps/rpm/*"],
+                "groupName": "Runner software",
+            },
+            {
+                "matchFileNames": ["Containerfile"],
+                "groupName": "Base images",
             },
             {
                 "matchDatasources": ["pypi"],
                 "groupName": "Python dependencies",
             },
             {
-                "matchManagers": ["git-submodules"],
-                "groupName": "Git submodules",
+                "matchManagers": ["github-actions"],
+                "groupName": "GitHub Actions",
             },
             {
                 # Use regex versioning scheme for oc, which doesn't have proper semver tags
                 "matchManagers": ["git-submodules"],
                 "matchPackageNames": ["https://github.com/openshift/oc.git"],
                 "versioning": "regex:^openshift-clients-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-(?<build>\\d+)$",
-            },
-            {
-                "matchFileNames": ["Containerfile"],
-                "groupName": "Base images",
             },
             {
                 # Follow Golang version tags (1.x), not RHEL version tags (10.x)

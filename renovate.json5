@@ -34,7 +34,25 @@
         "github.com/mikefarah/yq/v4"
       ],
       "enabled": true,
-      "groupName": "Go tools"
+      "groupName": "Runner software"
+    },
+    {
+      "matchManagers": [
+        "git-submodules"
+      ],
+      "groupName": "Runner software"
+    },
+    {
+      "matchFileNames": [
+        "deps/rpm/*"
+      ],
+      "groupName": "Runner software"
+    },
+    {
+      "matchFileNames": [
+        "Containerfile"
+      ],
+      "groupName": "Base images"
     },
     {
       "matchDatasources": [
@@ -44,9 +62,9 @@
     },
     {
       "matchManagers": [
-        "git-submodules"
+        "github-actions"
       ],
-      "groupName": "Git submodules"
+      "groupName": "GitHub Actions"
     },
     {
       "matchManagers": [
@@ -56,12 +74,6 @@
         "https://github.com/openshift/oc.git"
       ],
       "versioning": "regex:^openshift-clients-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-(?<build>\\d+)$"
-    },
-    {
-      "matchFileNames": [
-        "Containerfile"
-      ],
-      "groupName": "Base images"
     },
     {
       "matchPackageNames": [
