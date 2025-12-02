@@ -11,6 +11,9 @@
     "* * * * *"
   ],
   "prHourlyLimit": 0,
+  "gitIgnoredAuthors": [
+    "github-actions[bot]@users.noreply.github.com"
+  ],
   "git-submodules": {
     "enabled": true
   },

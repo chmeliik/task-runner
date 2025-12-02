@@ -9,6 +9,7 @@ def renovate_json(go_packages: list[GoPackage]) -> dict[str, Any]:
         "extends": ["config:recommended", "helpers:pinGitHubActionDigestsToSemver"],
         "schedule": ["* * * * *"],
         "prHourlyLimit": 0,  # unlimited
+        "gitIgnoredAuthors": ["github-actions[bot]@users.noreply.github.com"],
         "git-submodules": {
             "enabled": True,
         },
