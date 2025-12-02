@@ -27,6 +27,18 @@ jobs:
           # Fetches tags efficiently as a side effect
           .venv/bin/devtool ls
 
+      - name: Free up disk space (the container build needs it)
+        run: |
+          #!/bin/bash
+          set -euo pipefail
+
+          echo "Disk space before cleanup:"
+          df -h /
+          # Android consumes >12G disk space
+          sudo rm -rf /usr/local/lib/android
+          echo "Disk space after cleanup:"
+          df -h /
+
       - name: Build runner image
         uses: redhat-actions/buildah-build@v2.13
         with:
