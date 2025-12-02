@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 from typing import IO
 
+from devtool.diff import diff_software
 from devtool.markdown import print_packages_table
 from devtool.renovate import renovate_json
 from devtool.software_list import Package, list_go_tools, list_packages
@@ -36,6 +37,11 @@ def make_parser() -> argparse.ArgumentParser:
     gen_parser.add_argument("files", choices=GENERATEABLE_FILES, nargs="*")
     gen_parser.add_argument("--all", dest="gen_all", action="store_true")
     gen_parser.set_defaults(__cmd__=generate)
+
+    diff_parser = subcommands.add_parser("diff", help="Print what changed compared to the base ref")
+    diff_parser.add_argument("--base-ref", default="main")
+    diff_parser.add_argument("--head-ref")
+    diff_parser.set_defaults(__cmd__=diff)
 
     return parser
 
@@ -74,6 +80,19 @@ def generate(files: list[str], gen_all: bool) -> None:
                     f.write("\n")
             case _:
                 raise RuntimeError(f"Invalid file passed from CLI: {file}")
+
+
+def diff(base_ref: str, head_ref: str | None) -> None:
+    repo_root = _repo_root()
+    changes = diff_software(repo_root, base_ref=base_ref, head_ref=head_ref)
+
+    for pkg_name, old_version, new_version in changes:
+        if new_version is None:
+            print(pkg_name, "removed")
+        elif old_version is None:
+            print(pkg_name, "added", f"({new_version})")
+        elif old_version != new_version:
+            print(pkg_name, old_version, "=>", new_version)
 
 
 def _repo_root() -> Path:
