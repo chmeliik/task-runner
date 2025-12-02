@@ -40,7 +40,7 @@ jobs:
           df -h /
 
       - name: Build runner image
-        uses: redhat-actions/buildah-build@v2.13
+        uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 # v2.13
         with:
           tags: localhost/task-runner:latest
           containerfiles: ./Containerfile
