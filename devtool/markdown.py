@@ -1,4 +1,5 @@
 from typing import IO, assert_never
+import re
 
 from devtool.software_list import Package
 
@@ -24,6 +25,20 @@ def print_packages_table(packages: list[Package], outfile: IO[str]) -> None:
     # Hardcoded to generate smaller diffs. Increase if any package name is longer than this.
     column_width = 30
     print_markdown_table(columns, outfile, column_widths=column_width)
+
+
+def parse_package_table(content: str) -> dict[str, str]:
+    """Parse package names and versions from the packages table."""
+    #                             | {name}     | {version} ...
+    package_line = re.compile(r"^\|\s+(\S+)\s+\|\s+(\d\S+)")
+    packages: dict[str, str] = {}
+
+    for line in content.splitlines():
+        if match := package_line.match(line):
+            name, version = match.groups()
+            packages[name] = version
+
+    return packages
 
 
 def print_markdown_table(
