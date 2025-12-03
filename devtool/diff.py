@@ -1,9 +1,27 @@
+import enum
 import subprocess
 from pathlib import Path
 from typing import NamedTuple
 
 from devtool.markdown import parse_package_table
 from devtool.software_list import list_packages
+from devtool.version import Version
+
+
+class ChangeType(enum.IntEnum):
+    """Change types in order of importance."""
+
+    REMOVED = 4
+    MAJOR = 3
+    ADDED = 2
+    MINOR = 1
+    OTHER = 0
+
+    def is_breaking(self) -> bool:
+        return self >= ChangeType.MAJOR
+
+    def is_feature(self) -> bool:
+        return self >= ChangeType.MINOR
 
 
 class ChangedPackage(NamedTuple):
@@ -11,8 +29,27 @@ class ChangedPackage(NamedTuple):
     old_version: str | None
     new_version: str | None
 
+    def what_changed(self) -> ChangeType:
+        if self.new_version is None:
+            return ChangeType.REMOVED
+        if self.old_version is None:
+            return ChangeType.ADDED
 
-def diff_software(repo_root: Path, base_ref: str, head_ref: str | None) -> list[ChangedPackage]:
+        old_version = Version.parse(self.old_version)
+        new_version = Version.parse(self.new_version)
+
+        if old_version.major != new_version.major:
+            return ChangeType.MAJOR
+        if old_version.minor != new_version.minor:
+            return ChangeType.MINOR
+
+        # The patch number, the 4th version number for some RPMs, the release number...
+        return ChangeType.OTHER
+
+
+def diff_software(
+    repo_root: Path, base_ref: str, head_ref: str | None = None
+) -> list[ChangedPackage]:
     def git_show(ref: str, filepath: str) -> str:
         proc = subprocess.run(
             ["git", "show", f"{ref}:{filepath}"],
