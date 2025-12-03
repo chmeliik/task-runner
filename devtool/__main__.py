@@ -7,10 +7,11 @@ import sys
 from pathlib import Path
 from typing import IO
 
-from devtool.diff import diff_software
+from devtool.diff import ChangedPackage, ChangeType, diff_software
 from devtool.markdown import print_packages_table
 from devtool.renovate import renovate_json
 from devtool.software_list import Package, list_go_tools, list_packages
+from devtool.version import Version
 
 GENERATEABLE_FILES = ["Installed-Software.md", "renovate.json5"]
 
@@ -19,7 +20,8 @@ def main():
     parser = make_parser()
     args = vars(parser.parse_args())
     cmd = args.pop("__cmd__")
-    cmd(**args)
+    rv = cmd(**args)
+    sys.exit(rv)
 
 
 def make_parser() -> argparse.ArgumentParser:
@@ -41,7 +43,24 @@ def make_parser() -> argparse.ArgumentParser:
     diff_parser = subcommands.add_parser("diff", help="Print what changed compared to the base ref")
     diff_parser.add_argument("--base-ref", default="main")
     diff_parser.add_argument("--head-ref")
+    diff_parser.add_argument(
+        "--changelog",
+        action="store_true",
+        help="Output in format suitable for release notes / CHANELOG.md",
+    )
     diff_parser.set_defaults(__cmd__=diff)
+
+    prep_release_parser = subcommands.add_parser("prep-release", help="Prepare to release changes")
+    prep_release_parser.description = (
+        "Reads the VERSION file to determine the current released version. "
+        "Compares current dependency versions against the previous release "
+        "and bumps the version accordingly."
+    )
+    prep_release_parser.add_argument(
+        "--base-ref",
+        help="Specify the ref of the previous release (defaults to tag from VERSION file)",
+    )
+    prep_release_parser.set_defaults(__cmd__=prepare_release)
 
     return parser
 
@@ -82,17 +101,56 @@ def generate(files: list[str], gen_all: bool) -> None:
                 raise RuntimeError(f"Invalid file passed from CLI: {file}")
 
 
-def diff(base_ref: str, head_ref: str | None) -> None:
+def diff(base_ref: str, head_ref: str | None, changelog: bool) -> None:
     repo_root = _repo_root()
     changes = diff_software(repo_root, base_ref=base_ref, head_ref=head_ref)
+    _print_changes(changes, changelog_format=changelog)
 
-    for pkg_name, old_version, new_version in changes:
-        if new_version is None:
-            print(pkg_name, "removed")
-        elif old_version is None:
-            print(pkg_name, "added", f"({new_version})")
-        elif old_version != new_version:
-            print(pkg_name, old_version, "=>", new_version)
+
+def prepare_release(base_ref: str | None) -> int:
+    repo_root = _repo_root()
+    version_file = repo_root / "VERSION"
+    if not version_file.exists():
+        print("VERSION file doesn't exist, aborting", file=sys.stderr)
+        return 1
+
+    previous_version = Version.parse(version_file.read_text().strip())
+
+    if base_ref is None:
+        base_ref = str(previous_version)
+
+        proc = subprocess.run(
+            ["git", "rev-parse", base_ref],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        if proc.returncode != 0:
+            print(
+                f"{previous_version} tag doesn't exist, can't determine changes from previous version",
+                file=sys.stderr,
+            )
+            return 1
+
+    changes = diff_software(repo_root, base_ref=base_ref)
+    if not changes:
+        print(f"There are no significant changes since version {previous_version}", file=sys.stderr)
+        return 0
+
+    new_version = _bump_version(previous_version, changes)
+
+    print(f"=== Changes since version {previous_version} ===")
+    print()
+    _print_changes(changes, changelog_format=True)
+    print()
+    print("===")
+    print()
+    print(f"Bumped version to {new_version}")
+    print()
+    print("Please commit the VERSION file change and open a PR.")
+    print("After the PR is merged, create a GitHub release (use the release notes above).")
+
+    version_file.write_text(f"{new_version}\n")
+    return 0
 
 
 def _repo_root() -> Path:
@@ -100,6 +158,18 @@ def _repo_root() -> Path:
         ["git", "rev-parse", "--show-toplevel"], stdout=subprocess.PIPE, text=True, check=True
     )
     return Path(proc.stdout.strip())
+
+
+def _bump_version(version: Version, changed_packages: list[ChangedPackage]) -> Version | None:
+    most_significant_change = max(pkg.what_changed() for pkg in changed_packages)
+
+    if most_significant_change.is_breaking():
+        return version.bump("major")
+
+    if most_significant_change.is_feature():
+        return version.bump("minor")
+
+    return version.bump("patch")
 
 
 def _print_packages(format: str, packages: list[Package], outfile: IO[str]) -> None:
@@ -114,6 +184,24 @@ def _print_packages(format: str, packages: list[Package], outfile: IO[str]) -> N
             print_packages_table(packages, outfile)
         case _:
             raise RuntimeError(f"Invalid format passed from CLI: {format}")
+
+
+def _print_changes(changes: list[ChangedPackage], changelog_format: bool = False) -> None:
+    # Print in reverse order by importance (most important changes first)
+    for pkg in sorted(changes, key=lambda pkg: pkg.what_changed(), reverse=True):
+        what_changed = pkg.what_changed()
+        if what_changed == ChangeType.REMOVED:
+            change_str = "removed"
+        elif what_changed == ChangeType.ADDED:
+            change_str = f"added ({pkg.new_version})"
+        else:
+            change_str = f"{pkg.old_version} => {pkg.new_version}"
+
+        if changelog_format:
+            maybe_breaking = "BREAKING: " if what_changed.is_breaking() else ""
+            print(f"- {maybe_breaking}`{pkg.name}` {change_str}")
+        else:
+            print(f"{pkg.name} {change_str}")
 
 
 if __name__ == "__main__":
