@@ -213,6 +213,42 @@ make rpms.lock.yaml
 
 This uses [rpm-lockfile-prototype] to resolve and lock package versions.
 
+## Releasing
+
+### Versioning
+
+The version of the runner image is tracked in the VERSION file.
+When making a new release, bump the version according to the first matching rule:
+
+- Removed a tool / updated the major version of any tool -> bump the **major** version
+- Added a new tool / updated the minor version of any tool -> bump the **minor** version
+- Otherwise -> bump the **patch** version
+
+To bump the version automatically based on the changes in installed software, use:
+
+```sh
+devtool prep-release
+```
+
+The tool will automatically update the VERSION file and output a markdown list with
+the changes since the last release. Include this list when creating the GitHub release
+later.
+
+If there are no relevant changes to the installed software (i.e. the `Installed-Software.md`
+file did not change), the tool will abort without doing any changes. In that case,
+if you do want to do a release, please update the VERSION file manually and write
+the release notes yourself.
+
+### Release process
+
+1. Determine what has changed since last release and update the VERSION file accordingly
+   (see above).
+2. Send a PR to update the version.
+3. Once merged, if the Konflux release succeeds, create a GitHub release. In the
+   release notes, describe the relevant changes. You can use the output of the
+   `devtool prep-release` command. If you don't have that output available, use
+   `devtool diff --base-ref <previous_version> --changelog`.
+
 [ADR-0046: Common Task Runner Image]: https://github.com/konflux-ci/architecture/blob/main/ADR/0046-common-task-runner-image.md
 [konflux-hermetic]: https://konflux-ci.dev/docs/building/hermetic-builds/
 [rpm-lockfile]: https://hermetoproject.github.io/hermeto/rpm/
