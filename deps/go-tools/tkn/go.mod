@@ -274,7 +274,7 @@ require (
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
 	github.com/tektoncd/chains v0.26.0 // indirect
-	github.com/tektoncd/cli v0.43.0 // indirect
+	github.com/tektoncd/cli v0.45.0 // indirect
 	github.com/tektoncd/hub v1.23.1 // indirect
 	github.com/tektoncd/pipeline v1.6.0 // indirect
 	github.com/tektoncd/triggers v0.34.0 // indirect
